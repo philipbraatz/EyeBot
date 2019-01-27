@@ -2,15 +2,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>887968d9-acca-49da-8862-7d7b9dcbf92f</ProjectGuid>
+    <ProjectGuid>16e5fc2f-ba33-4763-ba52-700121169263</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>EyeBot.py.py</StartupFile>
+    <StartupFile>EyeBot.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>EyeBot.py</Name>
-    <RootNamespace>EyeBot.py</RootNamespace>
+    <Name>EyeBot</Name>
+    <RootNamespace>EyeBot</RootNamespace>
+    <InterpreterId>Global|PythonCore|3.6</InterpreterId>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +22,19 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="EyeBot.py.py" />
+    <Compile Include="bot.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="data.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="EyeBot.py" />
+    <Compile Include="sinText.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.6" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
