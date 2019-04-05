@@ -1,13 +1,9 @@
 import discord
 from discord.ext import commands
+from Command import *
 
 global isReady
 isReady =False
-
-class member(object):
-    def __init__(self, id,command, help):
-        self.id = id
-        self.name =client.get_server(id)
 
 class Bot(object):
 
@@ -18,32 +14,36 @@ class Bot(object):
     key =""
 
     server = ""
-    channel =""
+    channelList =[]#{"ID":"","Type":""}
 
     commandList =[]
+    def getCommands(self):
+        return self.commandList
+
     curMessage={"Command":"","Desc":"","Priv":""}
-    curCommand =""
-    curInstruction=""
+
 
     previousMessage=""
 
     title =""
     desc =""
-    def __init__(self,client, serverID, channelID, key,title,desc):
+    def __init__(self,client, serverID, channelSet, key,title,desc):
         self.client =client
         self.server =serverID
-        self.channel =channelID
+        self.channelList =channelSet
         self.key = key
-
-        help =[{"command":"help","desc":"shows this list"},
-                {"command":".","desc":"Bot cannot see messages that start with ."}]
-        self.commandList =[help]
+        
+        self.commandList =[
+            command(self,"help","shows this list","ALL","Commands\\Default.py"),
+            command(self,".","Bot cannot see messages that start with .","ALL",""),
+            command(self,"ping","Check if bot is responding","ALL","Commands\\Default.py"),
+            command(self,"add","adds 2 numbers","ALL","Commands\\Default.py"),
+            ]
 
         self.title =title
         self.desc =desc
+        pass
 
-    def getCommands(self):
-        return commandList
 
     def addCommand(self,command):#command is dict with command and description and privledge
         if type(command) =="dict":
@@ -75,39 +75,40 @@ class Bot(object):
         else:
             return False
 
-    def parse(self, text):
-        if text[0] =='.':
-            pass
-        elif text[0] == key:
-           found= text.find(' ',2)
-           if found !=-1:
-               self.curCommand =text[1:found]
-               self.curInstruction =text[found+1:]
-               return True
-        return False
-
-    def help_command(self):#returns info and commands
-        ret = self.title+":\n"+self.desc
-        for com in commandList:
-            ret+="\n"
-            for key,value in commandList[c]:
-                if key == "command":
-                    ret+=com[key]+"\t-"
-                if key =="desc":
-                    ret+=com[key]+"."
-        return ret
-
     async def on_ready(self):
         print('User: '+ self.client.user.name+' is activated.\nUsing Bot:'+title)
         isReady =True
         #load things here
-    async def on_message(self,message):
-        parse(message)
-        self.runCommands()
         pass
 
-    def runCommands(self,command,userID):
-        pass
+    #call on messages here
+    async def on_message(self,message):
+        if message.content[0] ==".":#can listen?
+            pass
+        elif message.content[0] == self.key:#correct key
+           found= message.content.find(" ",2)
+           if found !=-1:#end of command
+               await self.runCommand(message.content[1:found],
+                                     message.content[found+1:].split(),
+                                     message.channel)
+           else:
+               await self.runCommand(message.content[1:],
+                                     [],
+                                     message.channel)
+           return True
+        return False
+            
+    
+    async def runCommand(self,command,instruction,channel):
+        for com in self.commandList:
+            if command ==com.name:
+                print("Running "+com.name)
+                output =com.run(instruction)
+                print("Output: "+output)
+                await self.client.send_message(channel, output)
+                
+                return True
+        return False
 
     #user message, returns count# of messages
     #IGNORES messages with '.' as first character
@@ -134,8 +135,8 @@ class Bot(object):
             mmessageList.extend(getMessages_User(UserID,count+oldskippedMessages,skippedMessages))#dont read already skipped messages
         return messageList
 
-    def getName(self, serverID,memberid,getNick =true):
+    def getName(self,memberid,getNick):
         if getNick:
-            return self.client.server[serverID].members.nick
+            return self.client.server[this.server].members.nick
         else:
-            return self.client.server[serverID].members.name
+            return self.client.server[this.server].members.name

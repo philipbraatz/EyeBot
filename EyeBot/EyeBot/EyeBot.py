@@ -299,6 +299,12 @@ async def getRandomName():
     fileList = file.readlines()
     randname = random.randint(0,len(fileList)-1)
     return fileList[randname]
+
+readfile =""
+with open("secrets.txt","r") as filereader:
+    readfile = filereader.readline()
+    pass
+
 client.loop.create_task(loopTask())
-client.run('NTExNjkyNTc4ODk1NDI5NjM1.Dsu9fg.KvtTZ5DJfR0LNqEpa9tt3i6oFKY')
+client.run(readfile)
 print("Bot Deactivated")
