@@ -1,4 +1,5 @@
 from bot import Bot
+from typing import List
 import json
 
 #attacker->victim
@@ -70,70 +71,71 @@ typeAdvantage = {
 
 #created by the ID, time, and sinGod 
 class sinner(object):
-    ID =""
-    name ="Unnamed Sin"
-    healthBase =-1
-    attackBase =-1
-    stype =""
+    ID: str =""
+    name: str ="Unnamed Sin"
+    healthBase: int =-1
+    attackBase:int =-1
+    stype:str =""
 
-    WordList = []#List of sentences with List of words nested
+    WordList: List[str] = []#List of sentences with List of words nested
 
-    curHealth=health
-    dead =False
+    dead: bool =False
 
-    dmgTaken =0
-    dmgDelt=0
+    dmgTaken:int =0
+    dmgDelt:int=0
 
-    def __init__(self,time,name, attacklines,sinID):
+    def __init__(self,time:int,name:str, attacklines:List[str],sinID:str):
         time = time % 100000000
-        sinID =int(sinID[0:8])
-        self.ID =str(abs(time-sinID))#string of random numbers
+        sinID =sinID[0:8]
+        self.ID =str(abs(time-int(sinID)))#string of random numbers
 
         self.name =name
-        __getlines__(self,attacklines)
+        #__getlines__(self,attacklines)
+
+        self.curHealth: int=self.healthBase
 
         pass
 
-    def __getlines__(self,attackMessages):
+    def __getlines__(self,attackMessages:List[str]):
         self.WordList =[]#clear list
         for line in attackMessages:
-            self.WordList.append( line.split())
+            self.WordList.extend( line.split())
             pass
         pass
 
-    def setHealthBase(self,health):
+    def setHealthBase(self,health:int):
         self.healthBase =health
         self.curHealth =health
         pass
 
-    def getHealth(self,health):
+    def getHealth(self,health:int):
         return self.curHealth
-    def takeDamage(self,damage,type):
+    def takeDamage(self,damage:int,type:str):
         self.curHealth -=typeAdvantage[self.stype][type] * damage
-        if curHealth <1:
+        if self.curHealth <1:
             self.dead = True
             self.curHealth =0
         pass
 
 class sinGod(object):
-    level =0
-    ID =""#player ID
-    minons =[]#list of sinners
+    level:int =0
+    ID:str =""#player ID
+    minons:List[sinner] =[]#list of sinners
 
     wildWins=0#won wild battles
     wildLoss=0
     godWins=0#won battles
     godLoss=0
 
-    def __init__(self,ID):
+    def __init__(self,ID:str):
         self.ID =ID
         pass
 
-    def add_minon(self,sinner):
+    def add_minon(self,sinner:sinner):
         self.minons.append(sinner)
         pass
 
-    def remove_minon(self,sinner):
+    def remove_minon(self,sinner:sinner):
         self.minons.remove(sinner)
         pass
 
@@ -145,15 +147,15 @@ class sinGame(Bot):
         }
 
     filePlayers="sinimonPlayers.txt"
-    sinPlayers =[]#list of sinGods
-    serverMembers=[]#list of members
+    sinPlayers: List[sinGod] =[]#list of sinGods
+    serverMembers:List[str]=[]#list of members
 
-    def __init__(self,server, client, Comkey, title, desc, wild ="",arena=""):
+    def __init__(self,server:str, client:str, Comkey:str, title:str, desc:str, wild:str ="",arena:str=""):
         self.ID["wild"] =wild
         self.ID["arena"]=arena
 
         #Debug Admin commands
-        self.addCommand({"Command":"!addme","Desc":"test adding a player","Priv":"ADMIN"})
+        self._addCommand({"Command":"!addme","Desc":"test adding a player","Priv":"ADMIN"})
 
         return super().__init__(client, server, "", Comkey, title, desc)
 
@@ -166,8 +168,8 @@ class sinGame(Bot):
 
     #adds only new players
     #returns location in list
-    def addNewPlayer(self,playerID):
-        if self.sinPlayers >0:
+    def addNewPlayer(self,playerID:str):
+        if len(self.sinPlayers) >0:
             pcount =-1
             for player in self.sinPlayers:
                 pcount+=1
@@ -178,7 +180,7 @@ class sinGame(Bot):
 
     #deletes player
     #returns deleted location
-    def deletePlayer(self,playerID):
+    def deletePlayer(self,playerID:str):
         pcount =-1
         for player in self.sinPlayers:
             pcount+=1
@@ -193,6 +195,6 @@ class sinGame(Bot):
             self.serverMembers.append(member.id)
         pass
 
-    def generateSin(self,sinID,time):
+    def generateSin(self,sinID:str,time:int):
         retSin =sinner(time,sinID,super(Bot,self).getMessages_User(sinID),sinID)
         return retSin

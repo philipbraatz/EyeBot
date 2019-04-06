@@ -15,7 +15,7 @@ class command(object):
 
         if path != "":
             self.bot = bot#botself
-            self.path =path#file or something crazy
+            self.path =path#file or something crazyss
             self.function =self.load()
             pass
 
@@ -26,7 +26,50 @@ class command(object):
             file.close()
             pass
 
+    #returns calling function + content
+    def findAndReplaceParameters(self,content:str):
+        paramsStart = content.find("(")
+        paramsEnd = content.find(")")
+        paramStart =paramsStart
+
+        findName=content.find("def ")+len("def ")
+        #print("Find Content---\n"+content+"\n\n")
+        print("Namestart: "+str(findName)+" NameEnd"+str(paramsStart))
+        functionName = content[findName:paramsStart]
+        content =content[:paramsEnd+2]+"\n    global ret\n"+content[paramsEnd+2:]
+        print("functionName ="+functionName)
+        callFunction = functionName+"("
+
+        paramEnd =content.find(",",paramsStart,paramsEnd)-1#place before comma
+        if paramEnd <= -1:#only has 1 parameter
+            paramEnd = paramsEnd#end of parameters
+        param = content[paramsStart:paramEnd].strip()#(parameter1, param2)
+        if len(param) == 0:#()
+            return content+"\n"+callFunction+")"#functionName()
+
+        self.paramCount  =0
+        while paramEnd <=-1:
+            print(str(paramCount) + " paramEnds ="+str(paramEnd)+" | " + param)
+            #print("replacing \""+param+"\"")
+            if param != "bot" and param !="command":#rename extra parameters
+                content.replace(param,"params["+str(paramCount)+"]")
+                param ="params["+str(paramCount)+"]"
+                self.paramCount +=1
+                pass
+
+            callFunction +=param
+
+            paramStart+=len(param)+1#go to next param after comma
+            paramEnd =content.find(",",paramsStart,paramsEnd)-1
+            if paramEnd == -1 or paramEnd > paramsEnd:#last varible
+                return content+"\n"+callFunction+")"
+            else:
+                callFunction+= ","
+            param =content[paramStart:paramEnd].strip()
+        return content+"\n"+callFunction+")"
+        
     def load(self):
+        print("\nLoading "+self.name)
         if self.path != "":
             callFunction=""
 
@@ -34,71 +77,31 @@ class command(object):
             with open(self.path,"r") as f:
                 for line in f:
                     readfile +=line
-
+            
             #find start of function
-            print("Original:\n"+readfile+"\n\n")
-            endDecleration =readfile.find("def "+self.name)#def functionName | Posistion
+            startDecleration =readfile.find("def "+self.name)#def functionName | Posistion
+            if startDecleration >0:
+                readfile =readfile[startDecleration:]
+
+            endFunction =readfile.find("def ",startDecleration+1)
+            if endFunction >0:
+                readfile =readfile[:endFunction]
+            else:
+                EndFunction = len(readfile)
+            print("Preprocessed:\n"+readfile)
 
             #the end of the line after the function definition
-            firstEndLine =readfile.find("\n",endDecleration)#def functionName(bot,command, length) | Posistion
-            if endDecleration >-1:#if there is atleast 2 lines of data
+            firstEndLine =readfile.find("\n",startDecleration,endFunction)#def functionName(bot,command, length) | Posistion
+            if firstEndLine == -1:
+                firstEndLine = endFunction
 
-                parameters =-1
-                callFunction =self.name+"(bot,command"#functionName(bot,command,
-                print("46:"+callFunction)
-                paramLoc =readfile.find(",",endDecleration,firstEndLine)#current parameters location
+            if startDecleration >-1:#if there is a definition
+                print("setting varibles - Start: "+str(startDecleration)+" End: "+str(endFunction))
+                readfile = self.findAndReplaceParameters(readfile)
 
-                if paramLoc !=-1:#more than 1 parameter
-                    callFunction+=","
-                    print("51:"+callFunction)
-                    param = readfile[readfile.find("(",endDecleration,firstEndLine):paramLoc].strip()#first param
-
-                    #Replace all parameters with proper varibles
-                    while(paramLoc>-1):
-
-                        #convert parameters to usable values
-                        if(param != "bot" and param !="command"):
-                            parameters+=1
-                            lastFound =readfile.find(param,firstEndLine)
-                            while(lastFound >-1):
-                                readfile =readfile.replace(param,"params["+str(parameters)+"]")
-                                pass
-                            pass
-
-                        #Load next parameter
-                        paramLoc =readfile.find(",",paramLoc,firstEndLine)#start of param
-                        paramEnd =readfile.find(",",paramLoc,firstEndLine)#end of param
-                        if paramEnd == -1:
-                            paramEnd =readfile.find(")",paramLoc,firstEndLine)#last param
-                        param =readfile[paramLoc+1:paramEnd].strip()
-                        print(param)
-                        callFunction +=param+","#functionName(bot,command,params[0],params[1]
-                        print("73:"+callFunction)
-                        pass
-                else:#0 or 1 parameter
-                    param = readfile[readfile.find("(",endDecleration,firstEndLine)+1:
-                                     readfile.find(")",endDecleration,firstEndLine)]#only param inside ()
-                    if(param != "bot" and param !="command"):
-                        if len(param.strip()) >0:
-                            readfile =readfile.replace(param.strip(),"params[0]")
-                        print(param)
-
-                callFunction+=")"#functionName(bot,command,params[0],params[1])
-                print("85:"+callFunction)
-                if parameters <0:
-                    parameters =0
-                self.paramCount =parameters
-                readfile =readfile.replace("return ","ret =")#replace returns with ret varible
-                pass
-
-            
-            
-            
-            readfile =(("global ret\n"+ #add Global varibles
-                       callFunction +"\n"+#call function
-                       readfile)        #before file ^
-                        .replace("\\","\\\\"))#replace escape characters
-            print(readfile)
+            readfile =readfile.replace("return ","ret =")#replace returns with ret varible
+            readfile =(readfile).replace("\\","\\\\")#replace escape characters. do this last to get everything
+            print("Final:\n"+readfile)
             return readfile
 
     def run(self,params):

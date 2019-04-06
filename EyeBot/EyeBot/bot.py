@@ -1,22 +1,23 @@
 import discord
 from discord.ext import commands
+from typing import List
 from Command import *
 
 global isReady
-isReady =False
+isReady = False
 
-class Bot(object):
+class Bot():
 
-    ready =False
+    ready = False
 
-    client =""
+    client = ""
     
-    key =""
+    key = ""
 
     server = ""
-    channelList =[]#{"ID":"","Type":""}
+    channelList: list = []#{"ID":"","Type":""}
 
-    commandList =[]
+    commandList:list = []
     def getCommands(self):
         return self.commandList
 
@@ -44,29 +45,11 @@ class Bot(object):
         self.desc =desc
         pass
 
-
-    def addCommand(self,command):#command is dict with command and description and privledge
-        if type(command) =="dict":
-            if "command" in command and "Desc" and "Priv" in command:
-                return _checkcommand(self,command)
-        elif type(command) =="list":
-            for c in command:
-                addCommand(c)
-        else:
-            return False
-
     def _checkcommand(self,command):#command is dict with command and description
-        if( len(command["Command"]) !=0 and 
-           type(command["Command"]) == "str" and 
-           type(command["Desc"]) == "str" and
-            type(command["Priv"]) == "str"
-           ):
-            if command["Priv"] =="":
-                command["Priv"] = "ALL"
-            if command[command].find(' ') !=-1:
-                self.commandList.append(command)
-                return True
-        return False
+        pass
+
+    def _addCommand(self,command):#command is dict with command and description and privledge
+        pass
 
     def _removeCommand(self,command):#command is dict with command and description
         if command in self.commandList:
@@ -76,7 +59,7 @@ class Bot(object):
             return False
 
     async def on_ready(self):
-        print('User: '+ self.client.user.name+' is activated.\nUsing Bot:'+title)
+        print('User: '+ self.client.user.name+' is activated.\nUsing Bot:'+self.title)
         isReady =True
         #load things here
         pass
@@ -113,27 +96,7 @@ class Bot(object):
     #user message, returns count# of messages
     #IGNORES messages with '.' as first character
     async def getMessages_User(self,userID="",count =150,oldskippedMessages=0):
-        i = 0
-        messageID =""
-        messageList =[]
-
-        async for message in self.client.logs_from(message.channel,count+oldskippedMessages):
-            if count < i or oldskippedMessages ==0:#add uncounted messages
-                messageID = message.author.id
-                if message.content[0] != '.':
-                    if userID == "":
-                        messageList.append(message.content)
-                    elif userID == messageID:
-                        messageList.append(message.content)
-                    else:
-                        skippedMessages +=1
-                else:
-                    skippedMessages +=1
-
-            i+=1
-        if skippedMessages >0:#gets the exact count of messages because bot cannot see anything with '.'
-            mmessageList.extend(getMessages_User(UserID,count+oldskippedMessages,skippedMessages))#dont read already skipped messages
-        return messageList
+        pass
 
     def getName(self,memberid,getNick):
         if getNick:
