@@ -1,23 +1,50 @@
+import uuid
+
 def safeRun(bot,command,params):
     if command.path != "":
-        exec(command.function)
-        return ret
+        try:
+            exec(command.function)
+            return str(ret)
+        except:
+            return ("Error in "+command.name+" "+command.path+": "+ sys.exc_info()[0])
+
     else:
         return "Error: Command path does not exist"
 
 class command(object):
 
 
-    def __init__(self,bot,name,description="",privliges="ALL",path=""):
+    def __init__(self,bot,name,description="",privliges="ALL",path = ""):
+        self.id = str(uuid.uuid4())
         self.name=name#called name
         self.description=description
         self.privlige=privliges#security level
+        self.bot = bot#botself
+        self.paramCount =0
+        self.path = path
+        self.function=""
 
-        if path != "":
-            self.bot = bot#botself
-            self.path =path#file or something crazyss
+        if path == "" and len(self.name)>2:
+            self.path = "Commands\\python\\"+self.name+".py"
+
+            ##Future inprovement
+
+            #self.path = "COmmands\\parsed\\"+self.name+".py"
+            #if self.load == SUCCESS:
+            #   self.function =self.load()
+
+            #else:
+            #   self.path = "Commands\\python\\"+self.name+".py"
+            #
+            #if self.load == SUCCESS:
+            #   self.function =self.load()
+
             self.function =self.load()
             pass
+        else:
+            self.function =self.load()
+            pass
+        pass
 
     def create(self,code):
         if path != "":
@@ -28,45 +55,34 @@ class command(object):
 
     #returns calling function + content
     def findAndReplaceParameters(self,content:str):
-        paramsStart = content.find("(")
+        paramsStart = content.find("(")+1
         paramsEnd = content.find(")")
-        paramStart =paramsStart
+        print("Params Raw = "+content[paramsStart:paramsEnd])
+        paramList = content[paramsStart:paramsEnd].split(",")
+        self.paramCount =len(paramList)
 
         findName=content.find("def ")+len("def ")
-        #print("Find Content---\n"+content+"\n\n")
-        print("Namestart: "+str(findName)+" NameEnd"+str(paramsStart))
-        functionName = content[findName:paramsStart]
-        content =content[:paramsEnd+2]+"\n    global ret\n"+content[paramsEnd+2:]
-        print("functionName ="+functionName)
-        callFunction = functionName+"("
+        content =content[:paramsEnd+2]+"\n    global ret\n    ret = \"\""+content[paramsEnd+2:]
+        callFunction = content[findName:paramsStart]
 
-        paramEnd =content.find(",",paramsStart,paramsEnd)-1#place before comma
-        if paramEnd <= -1:#only has 1 parameter
-            paramEnd = paramsEnd#end of parameters
-        param = content[paramsStart:paramEnd].strip()#(parameter1, param2)
-        if len(param) == 0:#()
+        print("ParamCount = "+str(self.paramCount))
+        if len(paramList) == 0:
             return content+"\n"+callFunction+")"#functionName()
+        elif len(paramList) ==1:
+            return content+"\n"+callFunction+paramList[0]+")"#functionName(param1)
+        else:
+            p =0
+            for param in paramList:
+                print("replacing \""+param+"\"")
+                if param != "bot" and param !="command":#rename extra parameters
+                    print("Param["+str(p)+"] = "+str(param))
+                    content.replace(param,"params["+str(p)+"]")
+                    param ="params["+str(p)+"]"
+                p +=1
 
-        self.paramCount  =0
-        while paramEnd <=-1:
-            print(str(paramCount) + " paramEnds ="+str(paramEnd)+" | " + param)
-            #print("replacing \""+param+"\"")
-            if param != "bot" and param !="command":#rename extra parameters
-                content.replace(param,"params["+str(paramCount)+"]")
-                param ="params["+str(paramCount)+"]"
-                self.paramCount +=1
-                pass
-
-            callFunction +=param
-
-            paramStart+=len(param)+1#go to next param after comma
-            paramEnd =content.find(",",paramsStart,paramsEnd)-1
-            if paramEnd == -1 or paramEnd > paramsEnd:#last varible
-                return content+"\n"+callFunction+")"
-            else:
-                callFunction+= ","
-            param =content[paramStart:paramEnd].strip()
-        return content+"\n"+callFunction+")"
+                callFunction +=param+","
+            #callFunction +=param
+            return content+"\n"+callFunction+")"
         
     def load(self):
         print("\nLoading "+self.name)
@@ -74,9 +90,12 @@ class command(object):
             callFunction=""
 
             readfile =""
-            with open(self.path,"r") as f:
-                for line in f:
-                    readfile +=line
+            try:
+                with open(self.path,"r") as f:
+                    for line in f:
+                        readfile +=line
+            except IOError:
+                print("Could not read file: "+self.path)
             
             #find start of function
             startDecleration =readfile.find("def "+self.name)#def functionName | Posistion
@@ -97,17 +116,17 @@ class command(object):
 
             if startDecleration >-1:#if there is a definition
                 print("setting varibles - Start: "+str(startDecleration)+" End: "+str(endFunction))
-                readfile = self.findAndReplaceParameters(readfile)
+                readfile = self.findAndReplaceParameters(readfile)#convert to command Readable
 
             readfile =readfile.replace("return ","ret =")#replace returns with ret varible
-            readfile =(readfile).replace("\\","\\\\")#replace escape characters. do this last to get everything
-            print("Final:\n"+readfile)
+            #readfile =(readfile).replace("\\","\\\\")#replace escape characters. do this last to get everything
+            print("\nFinal:\n"+readfile)
             return readfile
 
     def run(self,params):
         #self.action =self.instruction
         global ret
-        ret =None
+        ret = "Error: Command did not execute"
         if self.paramCount == len(params):
             return safeRun(self.bot,self,params)
         else:

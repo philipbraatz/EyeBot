@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from typing import List
 from Command import *
+import uuid
 
 global isReady
 isReady = False
@@ -29,34 +30,33 @@ class Bot():
     title =""
     desc =""
     def __init__(self,client, serverID, channelSet, key,title,desc):
+        self.id = str(uuid.uuid4())#TODO impliment saving of bots
         self.client =client
         self.server =serverID
         self.channelList =channelSet
         self.key = key
         
         self.commandList =[
-            command(self,"help","shows this list","ALL","Commands\\Default.py"),
-            command(self,".","Bot cannot see messages that start with .","ALL",""),
-            command(self,"ping","Check if bot is responding","ALL","Commands\\Default.py"),
-            command(self,"add","adds 2 numbers","ALL","Commands\\Default.py"),
+            command(self,"help","shows this list","ALL","Commands\\python\\Default.py"),
+            command(self,".","Bot cannot see messages that start with .","ALL"),
+            command(self,"ping","Check if bot is responding","ALL","Commands\\python\\Default.py"),
+            command(self,"add","adds 2 numbers","ALL","Commands\\python\\Default.py"),
+            command(self,"command","Modify commands","MOD","Commands\\python\\Default.py"),
             ]
 
         self.title =title
         self.desc =desc
         pass
 
-    def _checkcommand(self,command):#command is dict with command and description
+    def _editcommand(self,command):
         pass
 
-    def _addCommand(self,command):#command is dict with command and description and privledge
+    def _addCommand(self,command):
+
         pass
 
-    def _removeCommand(self,command):#command is dict with command and description
-        if command in self.commandList:
-            self.commandList.remove(command)
-            return True
-        else:
-            return False
+    def _removeCommand(self,name):
+        pass
 
     async def on_ready(self):
         print('User: '+ self.client.user.name+' is activated.\nUsing Bot:'+self.title)
