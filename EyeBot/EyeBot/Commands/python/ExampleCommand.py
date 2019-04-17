@@ -1,3 +1,6 @@
+#from bot import *#not required but helps with intelisense
+#this will crash your command if you do use it
+
 #parameters are taken as space seperated values after the command itself
 #-commandExample thingOne 2
 #     name       param1   peaches
@@ -7,6 +10,7 @@
 #that isnt nested -aka dont put it inside a class
 
 #function name must match command name
+#function name must be 3 or more characters
 #to use bot and command varibles add bot and command as parameters
 #You can have as many or as few parameters as you want in any order
 
@@ -14,7 +18,7 @@
 
 #add a id using the function name + "_id"       set it = to a uuid 
 commandExample_id = '8a876646-bca2-4ae4-8a2f-809226ed7a16'
-def commandExample(bot,command,param1: str,peaches: str):
+def commandExample(bot,command,param1: str,peaches: str):#keep this on one line
     goPrint ="Bot Name: "+bot.title+" command Name: "+command.name+"\n"
     goPrint ="Example :" +param1 +", "+peaches#Example :thingOne, 2
 
@@ -36,6 +40,10 @@ def commandExample(bot,command,param1: str,peaches: str):
 
 #multiple commands can be in a single file
 
+#This command will not be read
+commandExample_id = '8a876646-bca2-4ae4-8a2f-809226ed7a16'
+def commandExample(bot,command,param1: str,peaches: str):
+    return False
 
 
 #NOT IMPLIMENTED YET
@@ -72,6 +80,8 @@ twoPartExample_id ='a72e3baf-03e9-4280-87c8-5009eb2a93ba'
 
 #any rank will work after wait
 twoPartExample_options = 'wait'#wait waits for a response from the user
+twoPartExample_options = 'wait-user'#wait waits for a response from the user
+twoPartExample_options = 'wait-none'#default - doesnt wait
 twoPartExample_options = 'wait-everyone'#wait waits for a response from the @everyone rank
 twoPartExample_options = 'wait-mod'#wait waits for a response from @mod rank
 twoPartExample_options = 'wait-bot'#wait waits for a response from a bot
