@@ -25,6 +25,7 @@
     <Compile Include="bot.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Command.py" />
     <Compile Include="data.py">
       <SubType>Code</SubType>
     </Compile>
@@ -35,6 +36,7 @@
     <Compile Include="sinText.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="UtilityPrint.py" />
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.6" />

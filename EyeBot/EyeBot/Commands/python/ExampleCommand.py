@@ -87,3 +87,7 @@ twoPartExample_options = 'wait-mod'#wait waits for a response from @mod rank
 twoPartExample_options = 'wait-bot'#wait waits for a response from a bot
 def twoPartExample(a, b, c, d):
     pass
+
+#Commands/python holds all the unmodified commands
+#Commands/parsed holds all of the parsed commands (DO NOT MODIFY)
+#Check out Default.py for the default commands

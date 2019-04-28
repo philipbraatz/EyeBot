@@ -24,7 +24,7 @@ global econ# = CommandBot("268122068007124993","$","econ")
 global ready
 ready = False
 
-gameList = [[], []]
+gameList:list = [[], []]
 global overRide
 overRide = False
 
